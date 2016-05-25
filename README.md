@@ -10,11 +10,11 @@ Example usage:
 const urltopdf = require('larviturltopdf'),
       fs       = require('fs');
 
-urltopdf('http://www.fsf.org/', function(err, base64str) {
+urltopdf('http://www.fsf.org/', function(err, pdfBuffer) {
 	if (err) throw err;
 
 	// Write to disk
-	fs.writeFile('output.pdf', new Buffer(base64str, 'base64'), function(err) {
+	fs.writeFile('output.pdf', pdfBuffer, function(err) {
 		if (err) throw err;
 
 		console.log('done');
