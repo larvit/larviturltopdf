@@ -2,6 +2,7 @@
 
 const urltopdf = require(__dirname + '/../index.js'),
       freeport = require('freeport'),
+      cheerio  = require('cheerio'),
       assert   = require('assert'),
       http     = require('http'),
       log      = require('winston');
@@ -28,7 +29,16 @@ before(function(done) {
 
 		httpPort = port;
 
-		http.createServer(function(req, res) {
+		done();
+	});
+});
+
+describe('Basics', function() {
+	this.slow(1500);
+	this.timeout(5000);
+
+	it('Should obtain a PDF buffer', function(done) {
+		const server = http.createServer(function(req, res) {
 			res.end(`<!DOCTYPE html>
 <html><head><title>Blubb</title></head><body><h1>Testing</h1></body></html>`);
 		}).listen(httpPort, function(err) {
@@ -36,27 +46,44 @@ before(function(done) {
 				throw err;
 			}
 
-			done();
+			urltopdf('http://localhost:' + httpPort, function(err, pdfBuffer) {
+				if (err) {
+					throw err;
+				}
+
+				assert(pdfBuffer instanceof Buffer, 'pdfBuffer is not an instance of the Buffer object');
+
+				server.close(done);
+			});
 		});
 	});
-});
 
-describe('Basics', function() {
-	this.slow(500);
-
-	it('Should obtain a PDF buffer', function(done) {
-		urltopdf('http://localhost:' + httpPort, function(err, pdfBuffer) {
+	it('Should obtain a PDF buffer once html is done loading', function(done) {
+		const server = http.createServer(function(req, res) {
+			res.end(`<!DOCTYPE html>
+<html><head><script type="text/javascript">
+window.setTimeout(function() {
+	document.body.innerHTML = '<h1>Ready I am</h1>';
+	document.body.setAttribute('class', 'html-ready');
+}, 500);
+</script><title>Blubb</title></head><body><h1>Testing</h1></body></html>`);
+		}).listen(httpPort, function(err) {
 			if (err) {
 				throw err;
 			}
 
-			assert(pdfBuffer instanceof Buffer, 'pdfBuffer is not an instance of the Buffer object');
+			urltopdf({'url': 'http://localhost:' + httpPort, 'waitForHtmlReadyClass': true}, function(err, pdfBuffer, html) {
+				const $ = cheerio.load(html);
 
-			//assert(typeof base64str === 'string', 'Expected base64str to be a string, but got: "' + (typeof base64str) + '"');
-			//assert((base64str.length / 4) === parseInt(base64str.length / 4), 'base64str have an invalid length, should be a multiplier of 4');
-			//assert(/^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$/.test(base64str), 'base64str does not validate to the regex');
+				if (err) {
+					throw err;
+				}
 
-			done();
+				assert(pdfBuffer instanceof Buffer, 'pdfBuffer is not an instance of the Buffer object');
+				assert($('h1').text() === 'Ready I am', 'The h1 should be "Ready I am", but is "' + $('h1').text() + '"');
+
+				server.close(done);
+			});
 		});
 	});
 });

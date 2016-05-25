@@ -1,28 +1,35 @@
 'use strict';
 
+var isReady = function() {
+	return true;
+};
+
 function run() {
-	var system = require('system'),
-	    page   = require('webpage').create(),
+	var system  = require('system'),
+	    timer   = 0,
+	    page    = require('webpage').create(),
+	    outfile,
 	    sizeArg,
 	    size,
 	    url;
 
-	if (system.args.length < 2 || system.args.length > 4) {
+	if (system.args.length < 3 || system.args.length > 5) {
 		system.stderr.write('Invalid numer of arguments.\n');
-		system.stderr.write('Usage: rasterize.js URL [paperwidth*paperheight|paperformat] [zoom]\n');
+		system.stderr.write('Usage: rasterize.js URL outfile [paperwidth*paperheight|paperformat] [true (wait for class "html-ready" to exist on the body tag)]\n');
 		system.stderr.write('  examples: "5in*7.5in", "10cm*20cm", "A4", "Letter"\n');
 		phantom.exit(1);
 		return;
 	}
 
-	if (system.args[2] === undefined) {
+	if (system.args[3] === undefined) {
 		sizeArg = 'A4';
 	} else {
-		sizeArg = system.args[2];
+		sizeArg = system.args[3];
 	}
 
 	url               = system.args[1];
 	size              = sizeArg.split('*');
+	outfile           = system.args[2];
 	page.viewportSize = {'width': 1920, 'height': 1080};
 
 	if (size.length === 2) {
@@ -33,15 +40,16 @@ function run() {
 		};
 	} else {
 		page.paperSize = {
-			//'format':      sizeArg,
-			'format':      'A4',
+			'format':      sizeArg,
 			'orientation': 'portrait',
-			'margin':      '0cm'
+			'margin':      '0'
 		};
 	}
 
-	if (system.args.length > 2) {
-		page.zoomFactor = system.args[3];
+	if (system.args[4] !== undefined) {
+		isReady = function() {
+			return document.getElementsByTagName('body')[0].classList.contains('html-ready');
+		};
 	}
 
 	// Make sure to catch all potential js errors
@@ -82,10 +90,24 @@ function run() {
 			return;
 		}
 
+		// Give phantom a few ms to fix all the little things
+		timer += 100;
 		window.setTimeout(function() {
-			page.render('/dev/stdout', {'format': 'pdf'});
-			phantom.exit();
-		}, 200);
+			function renderPage () {
+				if (page.evaluate(isReady)) {
+					page.render(outfile, {'format': 'pdf'});
+					system.stdout.write(page.content);
+					phantom.exit();
+				} else if (timer >= 10000) {
+					system.stderr.write('Timed out (' + timer + 'ms) waiting for html ready\n');
+					phantom.exit(1);
+				} else {
+					timer += 100;
+					window.setTimeout(renderPage, 100);
+				}
+			}
+			renderPage();
+		}, 100);
 	});
 };
 run();

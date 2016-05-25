@@ -4,84 +4,75 @@ const childProcess = require('child_process'),
       phantomjs    = require('phantomjs-prebuilt'),
       phBinPath    = phantomjs.path,
       path         = require('path'),
-      log          = require('winston');
+      tmp          = require('tmp'),
+      log          = require('winston'),
+      fs           = require('fs');
 
 /**
  * URL to PDF
  *
- * @param str url
- * @param func cb(err, pdfBuffer)
+ * @param obj options {url: str, paperFormat: paperwidth*paperheight|paperformat, waitForHtmlReadyClass: true/false,
+ * @param str options ALTERNATIVE to the one above, only supply an url
+ * @param func cb(err, pdfBuffer, html) - html is a string of the HTML that was used to render the PDF
  */
-exports = module.exports = function(url, cb) {
-	log.verbose('larviturltopdf: Running for url: "' + url + '"');
+exports = module.exports = function(options, cb) {
+	if (typeof options === 'string') {
+		options = {'url': options};
+	}
 
-	childProcess.execFile(phBinPath, [path.join(__dirname, 'rasterize.js'), url], function(err, stdout, stderr) {
-		if (stderr) {
-			const stderrErr = new Error('stderr is not empty: ' + stderr);
-			log.error('larviturltopdf: ' + stderrErr.message);
-			cb(stderrErr);
+	if (options.paperFormat === undefined) {
+		options.paperFormat = 'A4';
+	}
+
+	if ( ! options.waitForHtmlReadyClass) {
+		options.waitForHtmlReadyClass = false;
+	} else {
+		options.waitForHtmlReadyClass = true;
+	}
+
+	log.verbose('larviturltopdf: Running for url: "' + options.url + '"');
+
+	tmp.file(function(err, tmpFile) {
+		const execArgs = [
+			path.join(__dirname, 'rasterize.js'),
+			options.url,
+			tmpFile,
+			options.paperFormat
+		];
+
+		if (options.waitForHtmlReadyClass === true) {
+			execArgs.push('true');
+		}
+
+		log.verbose('larviturltopdf: Generating PDF with execArgs: ' + JSON.stringify(execArgs));
+
+		if (err) {
+			log.error('larviturltopdf: Could not create tmpFile: ' + err.messge);
+			cb(err);
 			return;
 		}
 
-		cb(err, stdout);
+		childProcess.execFile(phBinPath, execArgs, function(err, stdout, stderr) {
+			if (stderr) {
+				const stderrErr = new Error('stderr is not empty: ' + stderr);
+				log.error('larviturltopdf: ' + stderrErr.message);
+				cb(stderrErr);
+				return;
+			}
+
+			if (err) {
+				log.error('larviturltopdf: childProcess.execFile() returned err: ' + err.message);
+				cb(err);
+				return;
+			}
+
+			fs.readFile(tmpFile, function(err, pdfBuffer) {
+				if (err) {
+					log.error('larviturltopdf: Could not read from tmpFile: "' + tmpFile + '" err: ' + err.message);
+				}
+
+				cb(err, pdfBuffer, stdout);
+			});
+		});
 	});
-
-
-//	let phInstance,
-//	    page;
-//
-//	log.verbose('larviturltopdf: Running for url: "' + url + '"');
-//
-//	phantom.create()
-//	.then(function(instance) {
-//		phInstance = instance;
-//		return instance.createPage();
-//	})
-//	.then(function(pageInstance) {
-//		page = pageInstance;
-//
-//		return page.property('paperSize', {
-//			'format':      'A4',
-//			'orientation': 'portrait',
-//			'margin':      '0'
-//		});
-//	})
-////	.then(function() {
-////		return page.property('viewportSize', {
-////			'width': 2480,
-////			'height': 3508
-////		});
-////	});
-////	.then(function() {
-////		return page.property('paperSize', {
-////			'format':      'A4',
-////			'orientation': 'portrait',
-////			'margin':      '0'
-////		});
-////	})
-//	.then(function() {
-//		return page.open(url);
-//	})
-//	.then(function(status) {
-//		if (status === 'success') {
-//			log.debug('larviturltopdf: Succeeded with opening url: "' + url + '"');
-//			return page.render('/tmp/ffs.pdf', {'format': 'pdf'});
-//			//return page.renderBase64();
-//		}
-//
-//		throw new Error('Could not fetch page from url: "' + url + '"');
-//	})
-//	.then(function(base64str) {
-//		cb(null, base64str);
-//		return;
-//	})
-//	.then(function() {
-//		page.close();
-//		phInstance.exit();
-//	})
-//	.catch(function(err) {
-//		log.error('larviturltopdf: ' + err.message);
-//		cb(err);
-//		phInstance.exit();
-//	});
 };
