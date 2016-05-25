@@ -44,15 +44,17 @@ before(function(done) {
 describe('Basics', function() {
 	this.slow(500);
 
-	it('Should obtain a base64 string', function(done) {
-		urltopdf('http://localhost:' + httpPort, function(err, base64str) {
+	it('Should obtain a PDF buffer', function(done) {
+		urltopdf('http://localhost:' + httpPort, function(err, pdfBuffer) {
 			if (err) {
 				throw err;
 			}
 
-			assert(typeof base64str === 'string', 'Expected base64str to be a string, but got: "' + (typeof base64str) + '"');
-			assert((base64str.length / 4) === parseInt(base64str.length / 4), 'base64str have an invalid length, should be a multiplier of 4');
-			assert(/^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$/.test(base64str), 'base64str does not validate to the regex');
+			assert(pdfBuffer instanceof Buffer, 'pdfBuffer is not an instance of the Buffer object');
+
+			//assert(typeof base64str === 'string', 'Expected base64str to be a string, but got: "' + (typeof base64str) + '"');
+			//assert((base64str.length / 4) === parseInt(base64str.length / 4), 'base64str have an invalid length, should be a multiplier of 4');
+			//assert(/^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$/.test(base64str), 'base64str does not validate to the regex');
 
 			done();
 		});

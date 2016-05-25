@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/larvit/larviturltopdf#readme",
   "dependencies": {
-    "phantom": "^2.1.2",
+    "phantomjs-prebuilt": "^2.1.7",
     "winston": "^2.2.0"
   },
   "devDependencies": {
