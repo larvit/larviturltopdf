@@ -21,29 +21,29 @@ function run() {
 		return;
 	}
 
-	if (system.args[3] === undefined) {
-		sizeArg = 'A4';
-	} else {
+	url     = system.args[1];
+	outfile = system.args[2];
+
+	// Define pageSize only if it was passed as an argument
+	// (undefined is being passed as a string 'undefined')
+	// otherwise do nothing and let it be flexible
+	if (system.args[3] && system.args[3] !== 'undefined') {
 		sizeArg = system.args[3];
-	}
+		size    = sizeArg.split('*');
 
-	url               = system.args[1];
-	size              = sizeArg.split('*');
-	outfile           = system.args[2];
-	page.viewportSize = {'width': 1920, 'height': 1080};
-
-	if (size.length === 2) {
-		page.paperSize = {
-			'width':  size[0],
-			'height': size[1],
-			'margin': '0px'
-		};
-	} else {
-		page.paperSize = {
-			'format':      sizeArg,
-			'orientation': 'portrait',
-			'margin':      '0'
-		};
+		if (size.length === 2) {
+			page.paperSize = {
+				'width' : size[0],
+				'height': size[1],
+				'margin': 0
+			};
+		} else {
+			page.paperSize = {
+				'format'     :  sizeArg,
+				'orientation': 'portrait',
+				'margin'     :  0
+			};
+		}
 	}
 
 	if (system.args[4] !== undefined) {
