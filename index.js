@@ -20,10 +20,6 @@ exports = module.exports = function(options, cb) {
 		options = {'url': options};
 	}
 
-	if (options.paperFormat === undefined) {
-		options.paperFormat = 'A4';
-	}
-
 	if ( ! options.waitForHtmlReadyClass) {
 		options.waitForHtmlReadyClass = false;
 	} else {
