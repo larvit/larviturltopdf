@@ -48,7 +48,7 @@ exports = module.exports = function(options, cb) {
 			return;
 		}
 
-		childProcess.execFile(phBinPath, execArgs, function(err, stdout, stderr) {
+		childProcess.execFile(phBinPath, execArgs, { maxBuffer: 500 * 1024 }, function(err, stdout, stderr) {
 			if (stderr) {
 				const stderrErr = new Error('stderr is not empty: ' + stderr);
 				log.error('larviturltopdf: ' + stderrErr.message);
