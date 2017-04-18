@@ -15,7 +15,7 @@ const childProcess = require('child_process'),
  * @param str options ALTERNATIVE to the one above, only supply an url
  * @param func cb(err, pdfBuffer, html) - html is a string of the HTML that was used to render the PDF
  */
-exports = module.exports = function(options, cb) {
+exports = module.exports = function(options, execOptions, cb) {
 	if (typeof options === 'string') {
 		options = {'url': options};
 	}
@@ -28,6 +28,11 @@ exports = module.exports = function(options, cb) {
 		options.waitForHtmlReadyClass = false;
 	} else {
 		options.waitForHtmlReadyClass = true;
+	}
+
+	if (typeof execOptions === 'function') {
+		cb = execOptions;
+		execOptions = {};
 	}
 
 	log.verbose('larviturltopdf: Running for url: "' + options.url + '"');
@@ -52,7 +57,7 @@ exports = module.exports = function(options, cb) {
 			return;
 		}
 
-		childProcess.execFile(phBinPath, execArgs, { maxBuffer: 500 * 1024 }, function(err, stdout, stderr) {
+		childProcess.execFile(phBinPath, execArgs, execOptions, function(err, stdout, stderr) {
 			if (stderr) {
 				const stderrErr = new Error('stderr is not empty: ' + stderr);
 				log.error('larviturltopdf: ' + stderrErr.message);
