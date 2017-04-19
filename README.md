@@ -38,3 +38,20 @@ urltopdf({'url': 'http://www.fsf.org/', 'waitForHtmlReadyClass': true}, function
 	// Do something with pdfBuffer
 });
 ```
+
+## Custom execFile options
+
+You can pass an optional object as `execOptions` property with [options for the execFile](https://nodejs.org/api/child_process.html#child_process_child_process_execfile_file_args_options_callback).
+
+```javascript
+'use strict';
+
+const urltopdf = require('larviturltopdf'),
+      fs       = require('fs');
+
+urltopdf({'url': 'http://www.fsf.org/', execOptions: {'maxBuffer': 500 * 1024}}, function(err, pdfBuffer) {
+	if (err) throw err;
+
+	// Do something with pdfBuffer
+});
+```

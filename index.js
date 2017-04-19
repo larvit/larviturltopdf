@@ -26,6 +26,7 @@ exports = module.exports = function(options, cb) {
 		options.waitForHtmlReadyClass = true;
 	}
 
+
 	log.verbose('larviturltopdf: Running for url: "' + options.url + '"');
 
 	tmp.file(function(err, tmpFile) {
@@ -34,7 +35,8 @@ exports = module.exports = function(options, cb) {
 			options.url,
 			tmpFile,
 			options.paperFormat
-		];
+		],
+		execOptions = options.execOptions || {};
 
 		if (options.waitForHtmlReadyClass === true) {
 			execArgs.push('true');
@@ -48,7 +50,7 @@ exports = module.exports = function(options, cb) {
 			return;
 		}
 
-		childProcess.execFile(phBinPath, execArgs, { maxBuffer: 500 * 1024 }, function(err, stdout, stderr) {
+		childProcess.execFile(phBinPath, execArgs, execOptions, function(err, stdout, stderr) {
 			if (stderr) {
 				const stderrErr = new Error('stderr is not empty: ' + stderr);
 				log.error('larviturltopdf: ' + stderrErr.message);
