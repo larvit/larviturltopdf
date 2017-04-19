@@ -1,6 +1,6 @@
 {
   "name": "larviturltopdf",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Converting an URL to a PDF",
   "main": "index.js",
   "scripts": {
