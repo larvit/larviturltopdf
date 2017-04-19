@@ -96,7 +96,7 @@ window.setTimeout(function() {
 				throw err;
 			}
 
-			urltopdf('http://localhost:' + httpPort, {maxBuffer: 1024 * 1024}, function(err, pdfBuffer) {
+			urltopdf({'url': 'http://localhost:' + httpPort, execOptions: {maxBuffer: 1024 * 1024}}, function(err, pdfBuffer) {
 
 				if (err) {
 					throw err;
