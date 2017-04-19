@@ -86,4 +86,26 @@ window.setTimeout(function() {
 			});
 		});
 	});
+
+	it('Should obtain a PDF buffer when passed custom execFile options', function(done) {
+		const server = http.createServer(function(req, res) {
+			res.end(`<!DOCTYPE html>
+				<html><head><title>Blubb</title></head><body><h1>${Array(500 * 1024).fill(0)}</h1></body></html>`);
+		}).listen(httpPort, function(err) {
+			if (err) {
+				throw err;
+			}
+
+			urltopdf('http://localhost:' + httpPort, {maxBuffer: 1024 * 1024}, function(err, pdfBuffer) {
+
+				if (err) {
+					throw err;
+				}
+
+				assert(pdfBuffer instanceof Buffer, 'pdfBuffer is not an instance of the Buffer object');
+
+				server.close(done);
+			});
+		});
+	});
 });
