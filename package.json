@@ -1,6 +1,6 @@
 {
   "name": "larviturltopdf",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "description": "Converting an URL to a PDF",
   "main": "index.js",
   "scripts": {
@@ -21,27 +21,13 @@
   "homepage": "https://github.com/larvit/larviturltopdf#readme",
   "dependencies": {
     "phantomjs-prebuilt": "^2.1.7",
-    "tmp": "0.0.28",
+    "tmp": "0.0.31",
     "winston": "^2.2.0"
   },
   "devDependencies": {
     "cheerio": "^0.22.0",
-    "eslint": "^2.6.0",
+    "eslint": "^3.19.0",
     "freeport": "^1.0.5",
-    "mocha": "^2.4.5",
-    "pre-git": "^3.8.1"
-  },
-  "pre-commit": [
-    "npm test",
-    "eslint ./"
-  ],
-  "config": {
-    "pre-git": {
-      "commit-msg": [],
-      "pre-commit": [],
-      "pre-push": [],
-      "post-commit": [],
-      "post-merge": []
-    }
+    "mocha": "^3.4.2"
   }
 }
