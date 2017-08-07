@@ -1,13 +1,13 @@
 'use strict';
 
-const urltopdf = require(__dirname + '/../index.js'),
-      freeport = require('freeport'),
-      cheerio  = require('cheerio'),
-      assert   = require('assert'),
-      http     = require('http'),
-      log      = require('winston');
+const	urltopdf	= require(__dirname + '/../index.js'),
+	freeport	= require('freeport'),
+	cheerio	= require('cheerio'),
+	assert	= require('assert'),
+	http	= require('http'),
+	log	= require('winston');
 
-let httpPort;
+let	httpPort;
 
 // Set up winston
 log.remove(log.transports.Console);
@@ -23,11 +23,9 @@ process.cwd('..');
 before(function(done) {
 	// Starting up a http server with some basic stuff in it
 	freeport(function(err, port) {
-		if (err) {
-			throw err;
-		}
+		if (err) throw err;
 
-		httpPort = port;
+		httpPort	= port;
 
 		done();
 	});
@@ -42,16 +40,12 @@ describe('Basics', function() {
 			res.end(`<!DOCTYPE html>
 <html><head><title>Blubb</title></head><body><h1>Testing</h1></body></html>`);
 		}).listen(httpPort, function(err) {
-			if (err) {
-				throw err;
-			}
+			if (err) throw err;
 
 			urltopdf('http://localhost:' + httpPort, function(err, pdfBuffer) {
-				if (err) {
-					throw err;
-				}
+				if (err) throw err;
 
-				assert(pdfBuffer instanceof Buffer, 'pdfBuffer is not an instance of the Buffer object');
+				assert(pdfBuffer instanceof Buffer,	'pdfBuffer is not an instance of the Buffer object');
 
 				server.close(done);
 			});
@@ -68,16 +62,12 @@ window.setTimeout(function() {
 }, 500);
 </script><title>Blubb</title></head><body><h1>Testing</h1></body></html>`);
 		}).listen(httpPort, function(err) {
-			if (err) {
-				throw err;
-			}
+			if (err) throw err;
 
 			urltopdf({'url': 'http://localhost:' + httpPort, 'waitForHtmlReadyClass': true}, function(err, pdfBuffer, html) {
-				const $ = cheerio.load(html);
+				const	$	= cheerio.load(html);
 
-				if (err) {
-					throw err;
-				}
+				if (err) throw err;
 
 				assert(pdfBuffer instanceof Buffer, 'pdfBuffer is not an instance of the Buffer object');
 				assert($('h1').text() === 'Ready I am', 'The h1 should be "Ready I am", but is "' + $('h1').text() + '"');
@@ -92,15 +82,10 @@ window.setTimeout(function() {
 			res.end(`<!DOCTYPE html>
 				<html><head><title>Blubb</title></head><body><h1>${Array(500 * 1024).fill(0)}</h1></body></html>`);
 		}).listen(httpPort, function(err) {
-			if (err) {
-				throw err;
-			}
+			if (err) throw err;
 
 			urltopdf({'url': 'http://localhost:' + httpPort, execOptions: {maxBuffer: 1024 * 1024}}, function(err, pdfBuffer) {
-
-				if (err) {
-					throw err;
-				}
+				if (err) throw err;
 
 				assert(pdfBuffer instanceof Buffer, 'pdfBuffer is not an instance of the Buffer object');
 

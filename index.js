@@ -1,12 +1,13 @@
 'use strict';
 
-const childProcess = require('child_process'),
-      phantomjs    = require('phantomjs-prebuilt'),
-      phBinPath    = phantomjs.path,
-      path         = require('path'),
-      tmp          = require('tmp'),
-      log          = require('winston'),
-      fs           = require('fs');
+const	topLogPrefix	= 'larviturltopdf: index.js: ',
+	childProcess	= require('child_process'),
+	phantomjs	= require('phantomjs-prebuilt'),
+	phBinPath	= phantomjs.path,
+	path	= require('path'),
+	tmp	= require('tmp'),
+	log	= require('winston'),
+	fs	= require('fs');
 
 /**
  * URL to PDF
@@ -15,58 +16,54 @@ const childProcess = require('child_process'),
  * @param str options ALTERNATIVE to the one above, only supply an url
  * @param func cb(err, pdfBuffer, html) - html is a string of the HTML that was used to render the PDF
  */
-exports = module.exports = function(options, cb) {
+exports = module.exports = function (options, cb) {
 	if (typeof options === 'string') {
 		options = {'url': options};
 	}
 
 	if ( ! options.waitForHtmlReadyClass) {
-		options.waitForHtmlReadyClass = false;
+		options.waitForHtmlReadyClass	= false;
 	} else {
-		options.waitForHtmlReadyClass = true;
+		options.waitForHtmlReadyClass	= true;
 	}
 
-
-	log.verbose('larviturltopdf: Running for url: "' + options.url + '"');
+	log.verbose(topLogPrefix + 'Running for url: "' + options.url + '"');
 
 	tmp.file(function(err, tmpFile) {
-		const execArgs = [
-			path.join(__dirname, 'rasterize.js'),
-			options.url,
-			tmpFile,
-			options.paperFormat
-		],
-		execOptions = options.execOptions || {};
+		const	execOptions	= options.execOptions || {},
+			execArgs	= [];
+
+		execArgs.push(path.join(__dirname, 'rasterize.js'));
+		execArgs.push(options.url);
+		execArgs.push(tmpFile);
+		execArgs.push(options.paperFormat);
 
 		if (options.waitForHtmlReadyClass === true) {
 			execArgs.push('true');
 		}
 
-		log.verbose('larviturltopdf: Generating PDF with execArgs: ' + JSON.stringify(execArgs));
+		log.verbose(topLogPrefix + 'Generating PDF with execArgs: ' + JSON.stringify(execArgs));
 
 		if (err) {
-			log.error('larviturltopdf: Could not create tmpFile: ' + err.messge);
-			cb(err);
-			return;
+			log.error(topLogPrefix + 'Could not create tmpFile: ' + err.messge);
+			return cb(err);
 		}
 
 		childProcess.execFile(phBinPath, execArgs, execOptions, function(err, stdout, stderr) {
 			if (stderr) {
-				const stderrErr = new Error('stderr is not empty: ' + stderr);
-				log.error('larviturltopdf: ' + stderrErr.message);
-				cb(stderrErr);
-				return;
+				const	stderrErr	= new Error('stderr is not empty: ' + stderr);
+				log.error(topLogPrefix + stderrErr.message);
+				return cb(stderrErr);
 			}
 
 			if (err) {
-				log.error('larviturltopdf: childProcess.execFile() returned err: ' + err.message);
-				cb(err);
-				return;
+				log.error(topLogPrefix + 'childProcess.execFile() returned err: ' + err.message);
+				return cb(err);
 			}
 
 			fs.readFile(tmpFile, function(err, pdfBuffer) {
 				if (err) {
-					log.error('larviturltopdf: Could not read from tmpFile: "' + tmpFile + '" err: ' + err.message);
+					log.error(topLogPrefix + 'Could not read from tmpFile: "' + tmpFile + '" err: ' + err.message);
 				}
 
 				cb(err, pdfBuffer, stdout);
