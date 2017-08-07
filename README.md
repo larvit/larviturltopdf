@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/larvit/larviturltopdf.svg?branch=master)](https://travis-ci.org/larvit/larviturltopdf) [![Dependencies](https://david-dm.org/larvit/larviturltopdf.svg)](https://david-dm.org/larvit/larviturltopdf.svg)
+
 # larviturltopdf
 
 Render an URL to a PDF using phantomjs.

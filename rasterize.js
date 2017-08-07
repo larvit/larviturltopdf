@@ -33,15 +33,15 @@ function run() {
 
 		if (size.length === 2) {
 			page.paperSize = {
+				'margin': { top: 0, right: 0, bottom: 0, left: 0 },
 				'width' : size[0],
-				'height': size[1],
-				'margin': 0
+				'height': size[1]
 			};
 		} else {
 			page.paperSize = {
+				'margin': { top: 0, right: 0, bottom: 0, left: 0 },
 				'format'     :  sizeArg,
-				'orientation': 'portrait',
-				'margin'     :  0
+				'orientation': 'portrait'
 			};
 		}
 	}
