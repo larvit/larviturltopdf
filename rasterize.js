@@ -5,13 +5,17 @@ var isReady = function() {
 };
 
 function run() {
-	var system  = require('system'),
-	    timer   = 0,
-	    page    = require('webpage').create(),
-	    outfile,
-	    sizeArg,
-	    size,
-	    url;
+	var	system	= require('system'),
+		timer	= 0,
+		page	= require('webpage').create(),
+		dpi	= 72.0,
+		dpcm	= dpi / 2.54,
+		widthCm	= 21.0,
+		heightCm	= 29.7,
+		outfile,
+		sizeArg,
+		size,
+		url;
 
 	if (system.args.length < 3 || system.args.length > 5) {
 		system.stderr.write('Invalid numer of arguments.\n');
@@ -33,17 +37,24 @@ function run() {
 
 		if (size.length === 2) {
 			page.paperSize = {
-				'margin': { top: 0, right: 0, bottom: 0, left: 0 },
-				'width' : size[0],
-				'height': size[1]
+				'margin':	{ 'top': 0, 'right': 0, 'bottom': 0, 'left': 0 },
+				'width':	size[0],
+				'height':	size[1]
 			};
 		} else {
 			page.paperSize = {
-				'margin': { top: 0, right: 0, bottom: 0, left: 0 },
-				'format'     :  sizeArg,
-				'orientation': 'portrait'
+				'margin':	{ 'top': 0, 'right': 0, 'bottom': 0, 'left': 0 },
+				'format':	sizeArg,
+				'orientation':	'portrait'
 			};
 		}
+
+	// Default to A4 full width
+	} else {
+		page.viewportSize	= { 'width': Math.round(widthCm * dpcm), 'height': Math.round(heightCm * dpcm) };
+		page.paperSize	= { 'width': page.viewportSize.width + 'px', 'height': page.viewportSize.height + 'px', 'orientation': 'portrait', 'margin': '0' };
+		page.settings.dpi	= dpi;
+		page.zoomFactor	= 1.0;
 	}
 
 	if (system.args[4] !== undefined) {
