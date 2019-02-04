@@ -20,9 +20,9 @@ log.add(log.transports.Console, {
 
 process.cwd('..');
 
-before(function(done) {
+before(function (done) {
 	// Starting up a http server with some basic stuff in it
-	freeport(function(err, port) {
+	freeport(function (err, port) {
 		if (err) throw err;
 
 		httpPort	= port;
@@ -31,18 +31,18 @@ before(function(done) {
 	});
 });
 
-describe('Basics', function() {
+describe('Basics', function () {
 	this.slow(1500);
 	this.timeout(5000);
 
-	it('Should obtain a PDF buffer', function(done) {
-		const server = http.createServer(function(req, res) {
+	it('Should obtain a PDF buffer', function (done) {
+		const server = http.createServer(function (req, res) {
 			res.end(`<!DOCTYPE html>
 <html><head><title>Blubb</title></head><body><h1>Testing</h1></body></html>`);
-		}).listen(httpPort, function(err) {
+		}).listen(httpPort, function (err) {
 			if (err) throw err;
 
-			urltopdf('http://localhost:' + httpPort, function(err, pdfBuffer) {
+			urltopdf('http://localhost:' + httpPort, function (err, pdfBuffer) {
 				if (err) throw err;
 
 				assert(pdfBuffer instanceof Buffer,	'pdfBuffer is not an instance of the Buffer object');
@@ -52,8 +52,8 @@ describe('Basics', function() {
 		});
 	});
 
-	it('Should obtain a PDF buffer once html is done loading', function(done) {
-		const server = http.createServer(function(req, res) {
+	it('Should obtain a PDF buffer once html is done loading', function (done) {
+		const server = http.createServer(function (req, res) {
 			res.end(`<!DOCTYPE html>
 <html><head><script type="text/javascript">
 window.setTimeout(function() {
@@ -61,10 +61,10 @@ window.setTimeout(function() {
 	document.body.setAttribute('class', 'html-ready');
 }, 500);
 </script><title>Blubb</title></head><body><h1>Testing</h1></body></html>`);
-		}).listen(httpPort, function(err) {
+		}).listen(httpPort, function (err) {
 			if (err) throw err;
 
-			urltopdf({'url': 'http://localhost:' + httpPort, 'waitForHtmlReadyClass': true}, function(err, pdfBuffer, html) {
+			urltopdf({'url': 'http://localhost:' + httpPort, 'waitForHtmlReadyClass': true}, function (err, pdfBuffer, html) {
 				const	$	= cheerio.load(html);
 
 				if (err) throw err;
@@ -77,14 +77,14 @@ window.setTimeout(function() {
 		});
 	});
 
-	it('Should obtain a PDF buffer when passed custom execFile options', function(done) {
-		const server = http.createServer(function(req, res) {
+	it('Should obtain a PDF buffer when passed custom execFile and execArgs options', function (done) {
+		const server = http.createServer(function (req, res) {
 			res.end(`<!DOCTYPE html>
 				<html><head><title>Blubb</title></head><body><h1>${Array(500 * 1024).fill(0)}</h1></body></html>`);
-		}).listen(httpPort, function(err) {
+		}).listen(httpPort, function (err) {
 			if (err) throw err;
 
-			urltopdf({'url': 'http://localhost:' + httpPort, execOptions: {maxBuffer: 1024 * 1024}}, function(err, pdfBuffer) {
+			urltopdf({'url': 'http://localhost:' + httpPort, 'execArgs': ['--ssl-protocol=any', '--ignore-ssl-errors=true'], 'execOptions': {'maxBuffer': 1024 * 1024}}, function (err, pdfBuffer) {
 				if (err) throw err;
 
 				assert(pdfBuffer instanceof Buffer, 'pdfBuffer is not an instance of the Buffer object');

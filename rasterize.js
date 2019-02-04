@@ -1,6 +1,6 @@
 'use strict';
 
-var isReady = function() {
+var isReady = function () {
 	return true;
 };
 
@@ -58,43 +58,43 @@ function run() {
 	}
 
 	if (system.args[4] !== undefined) {
-		isReady = function() {
+		isReady = function () {
 			return document.getElementsByTagName('body')[0].classList.contains('html-ready');
 		};
 	}
 
 	// Make sure to catch all potential js errors
-	page.onError = function(msg, trace) {
+	page.onError = function (msg, trace) {
 		system.stderr.write('Page error: ' + msg + '\n');
 
 		if (trace && trace.length) {
 			system.stderr.write('Trace:\n');
 
-			trace.forEach(function(t) {
+			trace.forEach(function (t) {
 				system.stderr.write(' -> ' + (t.file || t.sourceURL) + ': ' + t.line + (t.function ? ' (in function ' + t.function + ')' : '') + '\n');
 			});
 		}
 	};
 
-	page.onResourceError = function(err) {
+	page.onResourceError = function (err) {
 		system.stderr.write('Unable to load resource (#' + err.id + ' URL: ' + err.url + ')\n');
 		system.stderr.write('Error code: ' + err.errorCode + '. Description: ' + err.errorString + '\n');
 	};
 
-	phantom.onError = function(msg, trace) {
+	phantom.onError = function (msg, trace) {
 		system.stderr.write('Phantom error: ' + msg + '\n');
 
 		if (trace && trace.length) {
 			system.stderr.write('Trace:\n');
 
-			trace.forEach(function(t) {
+			trace.forEach(function (t) {
 				system.stderr.write(' -> ' + (t.file || t.sourceURL) + ': ' + t.line + (t.function ? ' (in function ' + t.function + ')' : '') + '\n');
 			});
 		}
 		phantom.exit(1);
 	};
 
-	page.open(url, function(status) {
+	page.open(url, function (status) {
 		if (status !== 'success') {
 			system.stderr.write('Unable to load the url: "' + url + '"\n');
 			phantom.exit(1);
@@ -103,8 +103,8 @@ function run() {
 
 		// Give phantom a few ms to fix all the little things
 		timer += 100;
-		window.setTimeout(function() {
-			function renderPage () {
+		window.setTimeout(function () {
+			function renderPage() {
 				if (page.evaluate(isReady)) {
 					page.render(outfile, {'format': 'pdf'});
 					system.stdout.write(page.content);

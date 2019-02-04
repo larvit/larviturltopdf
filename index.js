@@ -29,9 +29,9 @@ exports = module.exports = function (options, cb) {
 
 	log.verbose(topLogPrefix + 'Running for url: "' + options.url + '"');
 
-	tmp.file(function(err, tmpFile) {
+	tmp.file(function (err, tmpFile) {
 		const	execOptions	= options.execOptions || {},
-			execArgs	= [];
+			execArgs	= options.execArgs || [];
 
 		execArgs.push(path.join(__dirname, 'rasterize.js'));
 		execArgs.push(options.url);
@@ -49,7 +49,7 @@ exports = module.exports = function (options, cb) {
 			return cb(err);
 		}
 
-		childProcess.execFile(phBinPath, execArgs, execOptions, function(err, stdout, stderr) {
+		childProcess.execFile(phBinPath, execArgs, execOptions, function (err, stdout, stderr) {
 			if (stderr) {
 				const	stderrErr	= new Error('stderr is not empty: ' + stderr);
 				log.error(topLogPrefix + stderrErr.message);
@@ -61,7 +61,7 @@ exports = module.exports = function (options, cb) {
 				return cb(err);
 			}
 
-			fs.readFile(tmpFile, function(err, pdfBuffer) {
+			fs.readFile(tmpFile, function (err, pdfBuffer) {
 				if (err) {
 					log.error(topLogPrefix + 'Could not read from tmpFile: "' + tmpFile + '" err: ' + err.message);
 				}
